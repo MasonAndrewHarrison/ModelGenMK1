@@ -1,4 +1,3 @@
-import open3d as o3d
 from plyfile import PlyData
 import numpy as np
 from typing import overload
