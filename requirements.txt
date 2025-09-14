@@ -19,7 +19,7 @@ lit==20.1.0.dev0
 MarkupSafe==3.0.2
 more-itertools==10.7.0
 nanobind==2.8.0
-numpy==2.3.2
+numpy==1.26.4
 packaging==25.0
 platformdirs==4.3.6
 psutil==7.0.0
