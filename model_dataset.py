@@ -144,6 +144,7 @@ class VoxelMatrix:
 
         if 'point_cloud' in kwargs:
             self.point_cloud = kwargs['point_cloud']
+            self.directory = kwargs['directory']
             
             self.x_size = kwargs['x_size']
             self.y_size = kwargs['y_size']
@@ -242,22 +243,17 @@ class VoxelMatrix:
         arr1, arr2, arr3 = args[0], args[1], args[2]
         arrays = [np.array(arr1), np.array(arr2), np.array(arr3)]
         
-        # Convert each array to structured array for faster comparison
         def to_structured(arr):
             dtype = np.dtype([('', arr.dtype)] * arr.shape[1])
             return arr.view(dtype).flatten()
         
         structured_arrays = [to_structured(arr) for arr in arrays]
-        
-        # Find intersection of all arrays
         common_structured = reduce(np.intersect1d, structured_arrays)
         
-        # Convert back to regular array
         if len(common_structured) > 0:
             return common_structured.view(arrays[0].dtype).reshape(-1, arrays[0].shape[1])
         else:
             return np.array([[-1.0] * 6])
-            #return np.array([]).reshape(0, arrays[0].shape[1])
 
 
     def get_local_average_faster(self, **kwargs):
@@ -392,7 +388,7 @@ class VoxelMatrix:
         return voxelMatrix       
 
     def save_data(self):
-        
+
         np.save(self.directory, self.model)
 
     def load_data(self) -> np.ndarray:
@@ -405,16 +401,24 @@ class VoxelMatrix:
         x_offset = 0.5 / self.x_size
         y_offset = 0.5 / self.y_size
         z_offset = 0.5 / self.z_size
+        point_cloud = np.array([])
 
         for i in range(self.x_size):
 
             for j in range(self.y_size):
 
                 for k in range(self.z_size):
+                    
+                    if self.model[i,j,k] is not None:
 
-                    x_pos = (i+x_offset)/4
-                    pixel = x_pos, self.model[i,j,k] 
-                    print(pixel)
+                        x_pos = (i+x_offset)/4
+                        y_pos = (j+y_offset)/4
+                        z_pos = (k+z_offset)/4
+                        point = np.concatenate([[x_pos, y_pos, z_pos], self.model[i,j,k]],
+                            dtype="float16")
+                        point_cloud = np.append(point_cloud, point)
+        
+        return point_cloud.reshape(-1, 6)
 
 
 
