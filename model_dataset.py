@@ -6,6 +6,7 @@ import pandas as pd
 import time
 from functools import reduce
 import render as Visualizer
+import threading
 
 
 class PointCloud:
@@ -349,6 +350,43 @@ class VoxelMatrix:
         counter = 0
         loading_timer = time.perf_counter() 
 
+        def set_pixel(**kwargs):
+
+            x_start = kwargs['x_start']
+            y_start = kwargs['y_start']
+            z_start = kwargs['z_start']
+
+            x_end = kwargs['x_end']
+            y_end = kwargs['y_end']
+            z_end = kwargs['z_end']
+
+            i = kwargs["i"]
+            j = kwargs["j"]
+            k = kwargs["k"]
+
+            #start = time.perf_counter()
+            pixel = self.get_local_average_faster(
+                x_start=x_start,
+                y_start=y_start,
+                z_start=z_start,
+                x_end=x_end,
+                y_end=y_end,
+                z_end=z_end
+            )
+
+            '''
+            end = time.perf_counter()
+            counter += 1
+            percentage_complete = counter / total_pixel_amount
+            current_time = end - loading_timer
+            total_time = current_time / percentage_complete
+            remaining_time = total_time - current_time
+            #print(f"Exectution time: {end - start:.4f} seconds {(percentage_complete):.4f}% | min remaining {remaining_time/60:.2f} | total estimated time {(total_time/60):.2f}")
+            '''
+            if not (pixel == -1).any():
+                print(pixel)
+                voxelMatrix[i][j][k] = pixel
+
         for i in range(self.x_size):
 
             x_start = i * x_factor
@@ -364,27 +402,21 @@ class VoxelMatrix:
                     z_start = k * z_factor
                     z_end = z_start + z_factor
 
-                    start = time.perf_counter()
-                    pixel = self.get_local_average_faster(
-                        x_start=x_start,
-                        y_start=y_start,
-                        z_start=z_start,
-                        x_end=x_end,
-                        y_end=y_end,
-                        z_end=z_end
-                    )
-                    end = time.perf_counter()
-                    counter += 1
-                    percentage_complete = counter / total_pixel_amount
-                    current_time = end - loading_timer
-                    
-                    if k % 100 == 0:
-                        total_time = current_time / percentage_complete
-                        remaining_time = total_time - current_time
-                        print(f"Exectution time: {end - start:.4f} seconds {(percentage_complete):.4f}% | min remaining {remaining_time/60:.2f} | total estimated time {(total_time/60):.2f}")
-
-                    if not (pixel == -1).any():
-                        voxelMatrix[i][j][k] = pixel
+                    thread = threading.Thread(target=set_pixel, kwargs={
+                        "x_start": x_start,
+                        "y_start": y_start,
+                        "z_start": z_start,
+                        "x_end": x_end,
+                        "y_end": y_end,
+                        "z_end": z_end,
+                        "i": i,
+                        "j": j,
+                        "k": k
+                    })
+                    thread.start()
+        
+        thread.join()
+        print("end")
         
         return voxelMatrix       
 
