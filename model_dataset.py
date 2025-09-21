@@ -364,7 +364,9 @@ class VoxelMatrix:
             j = kwargs["j"]
             k = kwargs["k"]
 
-            #start = time.perf_counter()
+            counter1 = kwargs["counter"]
+
+            start = time.perf_counter()
             pixel = self.get_local_average_faster(
                 x_start=x_start,
                 y_start=y_start,
@@ -373,16 +375,15 @@ class VoxelMatrix:
                 y_end=y_end,
                 z_end=z_end
             )
-
-            '''
-            end = time.perf_counter()
-            counter += 1
-            percentage_complete = counter / total_pixel_amount
-            current_time = end - loading_timer
-            total_time = current_time / percentage_complete
-            remaining_time = total_time - current_time
-            #print(f"Exectution time: {end - start:.4f} seconds {(percentage_complete):.4f}% | min remaining {remaining_time/60:.2f} | total estimated time {(total_time/60):.2f}")
-            '''
+            
+            if k%100 == 0:
+                end = time.perf_counter()
+                percentage_complete = counter1 / total_pixel_amount
+                current_time = end - loading_timer
+                total_time = current_time / percentage_complete
+                remaining_time = total_time - current_time
+                print(f"Exectution time: {end - start:.4f} seconds {(percentage_complete):.4f}% | min remaining {remaining_time/60:.2f} | total estimated time {(total_time/60):.2f}")
+                
             if not (pixel == -1).any():
                 print(pixel)
                 voxelMatrix[i][j][k] = pixel
@@ -401,6 +402,7 @@ class VoxelMatrix:
 
                     z_start = k * z_factor
                     z_end = z_start + z_factor
+                    counter += 1
 
                     thread = threading.Thread(target=set_pixel, kwargs={
                         "x_start": x_start,
@@ -411,12 +413,13 @@ class VoxelMatrix:
                         "z_end": z_end,
                         "i": i,
                         "j": j,
-                        "k": k
+                        "k": k,
+                        "counter": counter
                     })
                     thread.start()
         
-        thread.join()
-        print("end")
+        for thread in threads:
+            thread.join()
         
         return voxelMatrix       
 

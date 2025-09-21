@@ -12,9 +12,9 @@ my_model = point_cloud_list[92]
 voxel_dataset = Dataset.VoxelMatrix(
     directory="Voxel_Dataset/Model2.npy",
     point_cloud=my_model,
-    x_size=100,
-    y_size=100,
-    z_size=100
+    x_size=200,
+    y_size=200,
+    z_size=200
 )
 
 voxel_dataset.save_data()
