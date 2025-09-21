@@ -374,13 +374,14 @@ class VoxelMatrix:
                         z_end=z_end
                     )
                     end = time.perf_counter()
-
                     counter += 1
                     percentage_complete = counter / total_pixel_amount
                     current_time = end - loading_timer
-                    total_time = current_time / percentage_complete
-                    remaining_time = total_time - current_time
-                    print(f"Exectution time: {end - start:.4f} seconds {(percentage_complete):.8f}% | min remaining {remaining_time/60:.4f} | total estimated time {(total_time/60):.4f}")
+                    
+                    if k % 100 == 0:
+                        total_time = current_time / percentage_complete
+                        remaining_time = total_time - current_time
+                        print(f"Exectution time: {end - start:.4f} seconds {(percentage_complete):.4f}% | min remaining {remaining_time/60:.2f} | total estimated time {(total_time/60):.2f}")
 
                     if not (pixel == -1).any():
                         voxelMatrix[i][j][k] = pixel

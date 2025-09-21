@@ -8,19 +8,20 @@ flower_dataset = Dataset.PointCloud()
 point_cloud_list = flower_dataset.load_data('normalized_dataset.npy')
 my_model = point_cloud_list[92]
 
+
 voxel_dataset = Dataset.VoxelMatrix(
-    directory="Voxel_Dataset/Model1.npy",
+    directory="Voxel_Dataset/Model2.npy",
     point_cloud=my_model,
-    x_size=20,
-    y_size=20,
-    z_size=20
+    x_size=100,
+    y_size=100,
+    z_size=100
 )
 
 voxel_dataset.save_data()
 
 
 voxel_dataset = Dataset.VoxelMatrix(
-    directory="Voxel_Dataset/Model1.npy"
+    directory="Voxel_Dataset/Model2.npy"
 )
 
 
