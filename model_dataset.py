@@ -456,13 +456,16 @@ def converter_to_voxel(point_cloud, x_size, y_size, z_size):
         results = np.array(list(executor.map(voxel_matrix.get_local_average_fastest, worker_items)))
     '''
 
+    cpu_count = os.cpu_count()
 
-    with ThreadPoolExecutor(max_workers=16) as executor:
+    with ThreadPoolExecutor(max_workers=cpu_count) as executor:
+
         futures = [executor.submit(voxel_matrix.get_local_average_fastest, item) for item in worker_items]
         results = []
         for future in tqdm(futures, desc="Processing"):
             results.append(future.result())
         results = np.array(results)
+
        
     return results.reshape(x_size, y_size, z_size, 3)
 
