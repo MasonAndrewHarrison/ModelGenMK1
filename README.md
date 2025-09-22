@@ -1,5 +1,5 @@
-Make sure you install git-lfs
-Make sure you have python version <=3.12.11
+Make sure you install git-lfs.
+Make sure you have python version <=3.12.11.
 ## Setup
 1. Clone this repository
 2. Clone the lfs file: git lfs pull
