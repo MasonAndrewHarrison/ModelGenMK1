@@ -7,10 +7,12 @@ import time
 from functools import reduce
 import render as Visualizer
 import threading
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+from multiprocessing import Pool
 import os
 import copy
-
+from joblib import Parallel, delayed
+from tqdm import tqdm
 
 class PointCloud:
 
@@ -148,7 +150,6 @@ class VoxelMatrix:
 
         if 'point_cloud' in kwargs:
             self.point_cloud = kwargs['point_cloud']
-            self.directory = kwargs['directory']
             
             self.x_size = kwargs['x_size']
             self.y_size = kwargs['y_size']
@@ -165,17 +166,6 @@ class VoxelMatrix:
             self.extracted_sorted_x_pc = [point[0] for point in self.sorted_x_pc]
             self.extracted_sorted_y_pc = [point[1] for point in self.sorted_y_pc]
             self.extracted_sorted_z_pc = [point[2] for point in self.sorted_z_pc]
-
-            #self.model = self.faster_converter()
-        
-        elif 'directory' in kwargs:
-
-            self.directory = kwargs['directory']
-            self.model = self.load_data()
-            self.x_size, self.y_size, self.z_size = self.model.shape
-
-    def get_model(self):
-        return self.model
 
     def get_points_in_range(self, **kwargs):
 
@@ -306,8 +296,28 @@ class VoxelMatrix:
         common_colors = common_points[:, 3:]
         average_color = np.mean(common_colors, axis=0)
 
-        print(average_color)
         return np.array(average_color)
+
+    def get_local_average_fastest(self, start_stop_dict):
+
+        x_start = start_stop_dict['x_start']
+        y_start = start_stop_dict['y_start']
+        z_start = start_stop_dict['z_start']
+
+        x_end = start_stop_dict['x_end']
+        y_end = start_stop_dict['y_end']
+        z_end = start_stop_dict['z_end']
+
+        mask = ((self.point_cloud[:, 0] >= x_start) & (self.point_cloud[:, 0] < x_end) &
+                (self.point_cloud[:, 1] >= y_start) & (self.point_cloud[:, 1] < y_end) &
+                (self.point_cloud[:, 2] >= z_start) & (self.point_cloud[:, 2] < z_end))
+        
+        points_in_voxel = self.point_cloud[mask]
+        
+        if len(points_in_voxel) == 0:
+            return np.array([-1.0] * 3)
+        
+        return np.mean(points_in_voxel[:, 3:6], axis=0)
 
 
     def converter(self):
@@ -377,45 +387,49 @@ class VoxelMatrix:
         remaining_time = total_time - current_time
         print(remaining_time)
 
-    def save_data(self):
+def save_data(directory, model):
 
-        np.save(self.directory, self.model)
+    np.save(directory, model)
 
-    def load_data(self) -> np.ndarray:
+def load_data(directory) -> np.ndarray:
 
-        model = np.load(self.directory, allow_pickle=True)
-        return model
+    model = np.load(directory, allow_pickle=True)
+    return model
 
-def convert_to_point_cloud(self):
+def convert_to_point_cloud(model):
 
-    x_offset = 0.5 / self.x_size
-    y_offset = 0.5 / self.y_size
-    z_offset = 0.5 / self.z_size
+    x_size, y_size, z_size,_ = model.shape
+
+    x_offset = 0.5 / x_size
+    y_offset = 0.5 / y_size
+    z_offset = 0.5 / z_size
     point_cloud = np.array([])
 
-    for i in range(self.x_size):
+    for i in range(x_size):
 
-        for j in range(self.y_size):
+        for j in range(y_size):
 
-            for k in range(self.z_size):
+            for k in range(z_size):
                 
-                if self.model[i,j,k] is not None:
+                if (model[i,j,k] != -1).any():
 
                     x_pos = (i+x_offset)/4
                     y_pos = (j+y_offset)/4
                     z_pos = (k+z_offset)/4
-                    point = np.concatenate([[x_pos, y_pos, z_pos], self.model[i,j,k]],
+                    point = np.concatenate([[x_pos, y_pos, z_pos], model[i,j,k]],
                         dtype="float16")
                     point_cloud = np.append(point_cloud, point)
     
     return point_cloud.reshape(-1, 6)
 
+def converter_to_voxel(point_cloud, x_size, y_size, z_size):
 
-def faster_converter(voxel_matrix):
-
-    x_size = voxel_matrix.x_size
-    y_size = voxel_matrix.y_size
-    z_size = voxel_matrix.z_size
+    voxel_matrix = VoxelMatrix(
+        point_cloud=point_cloud,
+        x_size=x_size,
+        y_size=y_size,
+        z_size=z_size
+    ) 
 
     voxel_model = np.empty((x_size, y_size, z_size), dtype='object')
 
@@ -423,62 +437,32 @@ def faster_converter(voxel_matrix):
     y_factor = 1.0 / y_size
     z_factor = 1.0 / z_size
 
-    total_pixel_amount = x_size * y_size * z_size
-    loading_timer = time.perf_counter() 
+
+    worker_items = [
+    {
+        "x_start": i * x_factor, "x_end": (i + 1) * x_factor,
+        "y_start": j * y_factor, "y_end": (j + 1) * y_factor,
+        "z_start": k * z_factor, "z_end": (k + 1) * z_factor,
+        "i": i, "j": j, "k": k
+    }
+    for i in range(x_size)
+    for j in range(y_size)
+    for k in range(z_size)
+    ]
     
-    worker_items = []*(x_size * y_size * z_size)
-
-    #TODO clean this up
-    for i in range(x_size):
-
-        x_start = i * x_factor
-        x_end = x_start + x_factor
-
-        for j in range(y_size):
-
-            y_start = j * y_factor
-            y_end = y_start + y_factor
-
-            for k in range(z_size):
-
-                z_start = k * z_factor
-                z_end = z_start + z_factor
-                
-                worker_items.append({
-                    "x_start": x_start,
-                    "y_start": y_start,
-                    "z_start": z_start,
-                    "x_end": x_end,
-                    "y_end": y_end,
-                    "z_end": z_end,
-                    "i": i,
-                    "j": j,
-                    "k": k,
-                })
-
-
-    #num_workers = min(32, len(worker_items), (os.cpu_count() or 1) * 4)
-    
-    with ProcessPoolExecutor(max_workers=32) as executor:
-        results = list(executor.map(voxel_matrix.get_local_average_faster, worker_items))
-
 
     '''
-    for index, item in enumerate(worker_items, start = 1):
-
-        set_pixel_thread = threading.Thread(target=self.get_local_average_faster, kwargs=item)
-        set_pixel_thread.start()
-
-        if index % 10 == 0:
-            percentage_complete = index/len(worker_items)
-            check_time_thread = threading.Thread(target=self.check_time, kwargs={
-                "percentage_complete": percentage_complete,
-                "start_time": loading_timer
-            })
-            check_time_thread.start() 
-
-    return voxel_model    ''' 
+    with ThreadPoolExecutor(max_workers=16) as executor:
+        results = np.array(list(executor.map(voxel_matrix.get_local_average_fastest, worker_items)))
+    '''
 
 
-
+    with ThreadPoolExecutor(max_workers=16) as executor:
+        futures = [executor.submit(voxel_matrix.get_local_average_fastest, item) for item in worker_items]
+        results = []
+        for future in tqdm(futures, desc="Processing"):
+            results.append(future.result())
+        results = np.array(results)
+       
+    return results.reshape(x_size, y_size, z_size, 3)
 
