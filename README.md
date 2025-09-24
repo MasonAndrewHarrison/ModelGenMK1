@@ -3,8 +3,10 @@
 ## Make sure you have git-lfs
   Arch:
     sudo pacman -S git-lfs
-  Unbuntu:
+  or
+  Ubuntu:
     sudo apt install git-lfs
+  or
   Fedora:
     sudo dnf install git-lfs
 ## Setup
