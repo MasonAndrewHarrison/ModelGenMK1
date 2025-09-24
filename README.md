@@ -1,7 +1,14 @@
-Make sure you install git-lfs.
-Make sure you have python version <=3.12.11.
+**Make sure you have python version <=3.12.11.**
+## Install Pyenv
+## Make sure you have git-lfs
+  Arch:
+    sudo pacman -S git-lfs
+  Unbuntu:
+    sudo apt install git-lfs
+  Fedora:
+    sudo dnf install git-lfs
 ## Setup
-1. Clone this repository
+1. Clone this repository: https://github.com/MasonAndrewHarrison/ModelGenMK1.git
 2. Clone the lfs file: git lfs pull
 3. Create virtual environment: python -m venv venv
 4. Activate it: source venv/bin/activate
