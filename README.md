@@ -10,7 +10,7 @@
   Fedora:
     sudo dnf install git-lfs
 ## Setup
-1. Clone this repository: https://github.com/MasonAndrewHarrison/ModelGenMK1.git
+1. Clone this repository: git clone https://github.com/MasonAndrewHarrison/ModelGenMK1.git
 2. Clone the lfs file: git lfs pull
 3. Create virtual environment: python -m venv venv
 4. Activate it: source venv/bin/activate
