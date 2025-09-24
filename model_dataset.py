@@ -449,12 +449,6 @@ def converter_to_voxel(point_cloud, x_size, y_size, z_size):
     for j in range(y_size)
     for k in range(z_size)
     ]
-    
-
-    '''
-    with ThreadPoolExecutor(max_workers=16) as executor:
-        results = np.array(list(executor.map(voxel_matrix.get_local_average_fastest, worker_items)))
-    '''
 
     cpu_count = os.cpu_count()
 
