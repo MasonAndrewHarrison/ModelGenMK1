@@ -1,5 +1,4 @@
 **Make sure you have python version <=3.12.11.**
-## Install Pyenv
 ## Make sure you have git-lfs
   Arch:
     `sudo pacman -S git-lfs`
