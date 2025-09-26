@@ -7,11 +7,20 @@ import render
 flower_dataset = Dataset.PointCloud()
 point_cloud_list = flower_dataset.load_data('normalized_dataset.npy')
 
-for index, model in enumerate(point_cloud_list):
+start = time.perf_counter()
+
+for index, m in enumerate(point_cloud_list, start=55):
 
     print(f"{index} out of 103")
+    model = point_cloud_list[index]
 
-    model = Dataset.converter_to_voxel(model, 2, 2, 2)
+    model = Dataset.converter_to_voxel(model, 100, 100, 100)
 
-    directory = f"Voxel_Dataset_2p/model{index}.npy"
+    directory = f"Voxel_Dataset_100p/model{index}.npy"
     Dataset.save_data(directory, model)
+
+end = time.perf_counter()
+
+print(end - start)
+
+
