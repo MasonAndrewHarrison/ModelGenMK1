@@ -2,13 +2,13 @@
 ## Install Pyenv
 ## Make sure you have git-lfs
   Arch:
-    sudo pacman -S git-lfs
+    `sudo pacman -S git-lfs`
   or
   Ubuntu:
-    sudo apt install git-lfs
+   `sudo apt install git-lfs`
   or
   Fedora:
-    sudo dnf install git-lfs
+    `sudo dnf install git-lfs`
 ## Setup
 1. Clone this repository: git clone https://github.com/MasonAndrewHarrison/ModelGenMK1.git
 2. Clone the lfs file: git lfs pull
