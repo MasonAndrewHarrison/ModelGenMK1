@@ -2,6 +2,8 @@ import open3d as o3d
 
 def show_model(point_cloud):
 
+    
+
     if point_cloud is None:
         raise ValueError("Array is empty")
 
