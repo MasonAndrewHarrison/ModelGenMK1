@@ -20,7 +20,7 @@ def show_model(point_cloud):
     
         # Get render option and set point size
         render_option = vis.get_render_option()
-        render_option.point_size = 20.0  # Increase this value to make points bigger
+        render_option.point_size = 15.0  # Increase this value to make points bigger
     
         vis.run()
         vis.destroy_window()
