@@ -9,7 +9,7 @@ point_cloud_list = flower_dataset.load_data('normalized_dataset.npy')
 
 start = time.perf_counter()
 
-for index, m in enumerate(point_cloud_list, start=55):
+for index, m in enumerate(point_cloud_list, start=82):
 
     print(f"{index} out of 103")
     model = point_cloud_list[index]

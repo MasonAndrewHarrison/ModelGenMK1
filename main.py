@@ -4,10 +4,10 @@ import time
 import render
 
 
+for i in range(103):
+    model = Dataset.load_data(f"Voxel_Dataset_100p/model{i}.npy")
 
-model = Dataset.load_data("Voxel_Dataset/model2.npy")
 
-
-point_cloud = Dataset.convert_to_point_cloud(model)
-render.show_model(point_cloud)
+    point_cloud = Dataset.convert_to_point_cloud(model)
+    render.show_model(point_cloud)
 
