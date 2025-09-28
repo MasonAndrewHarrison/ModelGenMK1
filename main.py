@@ -3,12 +3,14 @@ import numpy as np
 import time
 import render
 import threading
+import sys
 
 label_dataset = np.array([])
 
 class ShowingModel(threading.Thread):
     def __init__(self, point_cloud):
         threading.Thread.__init__(self)
+        self._stop_event = threading.Event()
         self.point_cloud = point_cloud
 
     def run(self):
@@ -20,7 +22,8 @@ class TakeInput(threading.Thread):
         self.results = None
     
     def run(self):
-        self.results = 2
+        label = input("Label: ")
+        self.results = label
 
 for i in range(103):
 
@@ -32,7 +35,7 @@ for i in range(103):
 
     thread1.start()
     thread2.start()
-
+ 
     thread1.join()
     thread2.join()
 
