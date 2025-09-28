@@ -5,7 +5,7 @@ import render
 import threading
 import sys
 
-size_of_dataset = 5
+size_of_dataset = 103
 
 label_dataset = np.empty(size_of_dataset-1, dtype="int")
 point_cloud_dataset = np.empty(size_of_dataset-1, dtype="object")
@@ -15,7 +15,7 @@ for i in range(size_of_dataset-1):
     point_cloud = Dataset.convert_to_point_cloud(model)  
 
     point_cloud_dataset[i] = point_cloud
-    print(point_cloud_dataset[i])
+    print(f"{i+1} of {size_of_dataset}")
 
 class ShowingModel(threading.Thread):
     def __init__(self, point_cloud):
