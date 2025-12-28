@@ -11,7 +11,6 @@ from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from multiprocessing import Pool
 import os
 import copy
-from joblib import Parallel, delayed
 from tqdm import tqdm
 
 class PointCloud:
