@@ -47,8 +47,8 @@ class PointCloud:
 
     def __add__(self, other) -> None:
         
-        if isinstance(other, Dataset):
-            return self.get_all_models() + other.getAllModels()
+        if isinstance(other, PointCloud):
+            return self.get_all_models() + other.get_all_models()
 
         raise TypeError("Unsupported type")   
 

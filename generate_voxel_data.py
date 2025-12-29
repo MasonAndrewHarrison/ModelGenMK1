@@ -2,9 +2,11 @@ import model_dataset as Dataset
 import numpy as np
 import time
 import render
+import os
 
-resolution = 50
+resolution = 32
 
+os.makedirs(f'Voxel_Dataset_{resolution}p', exist_ok=True)
 
 flower_dataset = Dataset.PointCloud()
 point_cloud_list = flower_dataset.load_data('normalized_dataset.npy')

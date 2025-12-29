@@ -1,0 +1,4 @@
+__pycache__
+.venv
+Voxel_Dataset_*
+*.npy 
