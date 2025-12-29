@@ -5,6 +5,7 @@ import render
 import os
 
 resolution = 32
+starting = 6
 
 os.makedirs(f'Voxel_Dataset_{resolution}p', exist_ok=True)
 
@@ -13,7 +14,7 @@ point_cloud_list = flower_dataset.load_data('normalized_dataset.npy')
 
 start = time.perf_counter()
 
-for index,_ in enumerate(point_cloud_list, start=0):
+for index,_ in enumerate(point_cloud_list, start=starting):
 
     print(f"{index+1} out of 103")
     model = point_cloud_list[index]
